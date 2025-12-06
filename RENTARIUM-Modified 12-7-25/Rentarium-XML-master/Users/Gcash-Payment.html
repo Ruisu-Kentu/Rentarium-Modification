@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCash Payment - Rentarium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #007bff 0%, #0056d2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .gcash-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .gcash-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056d2 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+        }
+
+        .gcash-logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .gcash-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .gcash-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .payment-info {
+            background: #f0f9ff;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e0e7ff;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .amount-display {
+            background: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .amount-label {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .amount-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #007bff;
+            line-height: 1;
+        }
+
+        .payment-form {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .reference-display {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056d2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .security-notice {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .security-notice-title {
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .security-notice-text {
+            color: #047857;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #334155;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .loading-subtext {
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="gcash-container">
+        <div class="gcash-header">
+            <div class="gcash-logo">💙</div>
+            <div class="gcash-title">GCash</div>
+            <div class="gcash-subtitle">Secure Mobile Payment</div>
+        </div>
+
+        <div class="payment-info">
+            <div class="info-row">
+                <span class="info-label">Merchant</span>
+                <span class="info-value">Rentarium Property</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tenant</span>
+                <span class="info-value" id="tenantName">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Unit</span>
+                <span class="info-value" id="unitNumber">-</span>
+            </div>
+        </div>
+
+        <div class="amount-display">
+            <div class="amount-label">Amount to Pay</div>
+            <div class="amount-value" id="amountDisplay">₱0</div>
+        </div>
+
+        <div class="payment-form">
+            <form id="gcashForm">
+                <div class="form-group">
+                    <label class="form-label">GCash Mobile Number</label>
+                    <input 
+                        type="tel" 
+                        class="form-input" 
+                        id="gcashNumber" 
+                        placeholder="09XX XXX XXXX"
+                        pattern="[0-9]{11}"
+                        maxlength="11"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Account Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="accountName" 
+                        placeholder="Enter your name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Reference Number</label>
+                    <div class="reference-display" id="referenceNumber">-</div>
+                </div>
+
+                <div class="security-notice">
+                    <div class="security-notice-title">🔒 Secure Payment</div>
+                    <div class="security-notice-text">
+                        This is a simulation. Your payment will be recorded and sent to the landlord for verification.
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="cancelPayment()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Pay Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processing Payment</div>
+            <div class="loading-subtext">Please wait...</div>
+        </div>
+    </div>
+
+    <script src="../js/payment-storage.js"></script>
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = parseFloat(urlParams.get('amount') || 0);
+        const tenantName = urlParams.get('tenantName') || 'N/A';
+        const unit = urlParams.get('unit') || 'N/A';
+        const dueDate = urlParams.get('dueDate') || '';
+
+        // Generate reference number
+        const referenceNumber = PaymentStorage.generateReference('gcash');
+
+        // Display payment information
+        document.getElementById('tenantName').textContent = tenantName;
+        document.getElementById('unitNumber').textContent = unit;
+        document.getElementById('amountDisplay').textContent = `₱${amount.toLocaleString()}`;
+        document.getElementById('referenceNumber').textContent = referenceNumber;
+
+        // Pre-fill account name with tenant name
+        document.getElementById('accountName').value = tenantName;
+
+        // Handle form submission
+        document.getElementById('gcashForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const gcashNumber = document.getElementById('gcashNumber').value;
+            const accountName = document.getElementById('accountName').value;
+
+            // Validate phone number
+            if (!/^09\d{9}$/.test(gcashNumber)) {
+                alert('Please enter a valid GCash number (09XXXXXXXXX)');
+                return;
+            }
+
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            // Simulate payment processing delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            try {
+                // Create payment record
+                const payment = PaymentStorage.createPayment({
+                    amount: amount,
+                    method: 'gcash',
+                    status: 'pending',
+                    reference: referenceNumber,
+                    dueDate: dueDate,
+                    notes: 'GCash payment - awaiting verification',
+                    metadata: {
+                        gcashNumber: gcashNumber.replace(/(\d{4})(\d{3})(\d{4})/, '$1***$3'),
+                        accountName: accountName
+                    }
+                });
+
+                // Hide loading
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                // Show success message
+                alert('✅ Payment Submitted!\n\nYour GCash payment has been recorded.\nReference: ' + referenceNumber + '\n\nPlease wait for landlord verification.');
+
+                // Redirect back to user payment page
+                window.location.href = 'User-Payment.html';
+            } catch (error) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert('Error processing payment: ' + error.message);
+            }
+        });
+
+        function cancelPayment() {
+            if (confirm('Are you sure you want to cancel this payment?')) {
+                window.location.href = 'User-Payment.html';
+            }
+        }
+    </script>
+</body>
+</html>

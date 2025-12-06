@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPI Online Banking - Rentarium Payment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #dc143c 0%, #a00020 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .bpi-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .bpi-header {
+            background: linear-gradient(135deg, #dc143c 0%, #a00020 100%);
+            color: white;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bpi-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bpi-logo {
+            font-size: 36px;
+        }
+
+        .bpi-text {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .bpi-subtitle {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .transaction-type {
+            background: white;
+            color: #dc143c;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            border-bottom: 3px solid #dc143c;
+        }
+
+        .transfer-form {
+            padding: 30px;
+        }
+
+        .account-section {
+            background: #fff5f5;
+            border-left: 4px solid #dc143c;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .account-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .account-details {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .account-number {
+            font-family: 'Courier New', monospace;
+            color: #dc143c;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #dc143c;
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .amount-input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .amount-input {
+            padding-left: 40px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #dc143c;
+        }
+
+        .reference-box {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border: 2px dashed #cbd5e0;
+            text-align: center;
+        }
+
+        .reference-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .reference-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .payment-summary {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 2px solid #dc143c;
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .summary-total {
+            font-size: 24px;
+            color: #dc143c;
+            font-weight: 700;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc143c 0%, #a00020 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(220, 20, 60, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #ecfdf5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .security-icon {
+            color: #10b981;
+            font-size: 18px;
+        }
+
+        .security-text {
+            color: #065f46;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 320px;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f1f5f9;
+            border-top-color: #dc143c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #334155;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .loading-subtext {
+            color: #64748b;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bpi-container">
+        <div class="bpi-header">
+            <div class="bpi-logo-section">
+                <div class="bpi-logo">🏦</div>
+                <div>
+                    <div class="bpi-text">BPI</div>
+                    <div class="bpi-subtitle">Online Banking</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="transaction-type">FUND TRANSFER</div>
+
+        <div class="transfer-form">
+            <div class="account-section">
+                <div class="account-label">Transfer To</div>
+                <div class="account-details">Rentarium Property Management</div>
+                <div class="account-number">XXXX-XXXX-4589</div>
+            </div>
+
+            <form id="bpiForm">
+                <div class="form-section">
+                    <label class="form-label">From Account</label>
+                    <select class="form-select" id="fromAccount" required>
+                        <option value="">Select Account</option>
+                        <option value="savings-1234">Savings Account - XXXX-1234</option>
+                        <option value="checking-5678">Checking Account - XXXX-5678</option>
+                    </select>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Amount</label>
+                    <div class="amount-input-wrapper">
+                        <span class="currency-symbol">₱</span>
+                        <input 
+                            type="number" 
+                            class="form-input amount-input" 
+                            id="transferAmount" 
+                            readonly
+                        >
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Purpose</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="purpose" 
+                        value="Monthly Rent Payment"
+                        readonly
+                    >
+                </div>
+
+                <div class="form-section">
+                    <div class="reference-box">
+                        <div class="reference-label">Transaction Reference</div>
+                        <div class="reference-value" id="transactionRef">-</div>
+                    </div>
+                </div>
+
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Tenant</span>
+                        <span class="summary-value" id="summaryTenant">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Unit</span>
+                        <span class="summary-value" id="summaryUnit">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Transfer Fee</span>
+                        <span class="summary-value">₱0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total Amount</span>
+                        <span class="summary-value summary-total" id="summaryTotal">₱0</span>
+                    </div>
+                </div>
+
+                <div class="security-badge">
+                    <span class="security-icon">🔒</span>
+                    <span class="security-text">256-BIT SSL ENCRYPTED TRANSACTION</span>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="cancelTransfer()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Transfer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processing Transfer</div>
+            <div class="loading-subtext">Please do not close this window</div>
+        </div>
+    </div>
+
+    <script src="../js/payment-storage.js"></script>
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = parseFloat(urlParams.get('amount') || 0);
+        const tenantName = urlParams.get('tenantName') || 'N/A';
+        const unit = urlParams.get('unit') || 'N/A';
+        const dueDate = urlParams.get('dueDate') || '';
+
+        // Generate reference number
+        const referenceNumber = PaymentStorage.generateReference('bpi');
+
+        // Display payment information
+        document.getElementById('transferAmount').value = amount;
+        document.getElementById('transactionRef').textContent = referenceNumber;
+        document.getElementById('summaryTenant').textContent = tenantName;
+        document.getElementById('summaryUnit').textContent = unit;
+        document.getElementById('summaryTotal').textContent = `₱${amount.toLocaleString()}`;
+
+        // Handle form submission
+        document.getElementById('bpiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fromAccount = document.getElementById('fromAccount').value;
+
+            if (!fromAccount) {
+                alert('Please select an account to transfer from');
+                return;
+            }
+
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            // Simulate bank processing delay
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
+            try {
+                // Create payment record
+                const payment = PaymentStorage.createPayment({
+                    amount: amount,
+                    method: 'bpi',
+                    status: 'pending',
+                    reference: referenceNumber,
+                    dueDate: dueDate,
+                    notes: 'BPI bank transfer - awaiting verification',
+                    metadata: {
+                        fromAccount: fromAccount,
+                        bankName: 'BPI',
+                        transferType: 'InstaPay'
+                    }
+                });
+
+                // Hide loading
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                // Show success message
+                alert('✅ Transfer Successful!\n\nYour payment has been recorded.\nReference: ' + referenceNumber + '\n\nPlease wait for landlord verification.');
+
+                // Redirect back to user payment page
+                window.location.href = 'User-Payment.html';
+            } catch (error) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert('Error processing transfer: ' + error.message);
+            }
+        });
+
+        function cancelTransfer() {
+            if (confirm('Are you sure you want to cancel this transfer?')) {
+                window.location.href = 'User-Payment.html';
+            }
+        }
+    </script>
+</body>
+</html>

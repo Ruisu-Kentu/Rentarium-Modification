@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/user-payment.css">
+    <title>Payments - Rentarium</title>
+    
+
+</head>
+<body>
+       <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">Rentarium</div>
+            <div class="tenant-label">Tenant Portal</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../Users/User-Dashboard.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/User-Payment.html" class="nav-link active">
+                            <span class="nav-icon">💳</span>
+                            <span class="nav-text">Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Announcements.html" class="nav-link">
+                            <span class="nav-icon">📢</span>
+                            <span class="nav-text">Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Login-Form.html" class="nav-link" id="logoutBtn">
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- User Profile Card -->
+            <div class="user-profile-card">
+                <div class="user-avatar" id="userAvatar">RO</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Ruisu Ohaha</div>
+                    <div class="user-role">Tenant</div>
+                </div>
+            </div>
+        </aside>
+
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Payment Management</h2>
+            <p>Make payments and view payment history</p>
+        </div>
+
+        <div class="payment-summary">
+           <div class="summary-card">
+                 <div class="stat-label">Monthly Rent</div>
+                 <div class="stat-value" id="monthlyRent">₱0</div>
+           </div>
+           <div class="summary-card">
+                 <div class="stat-label">Next Payment Due</div>
+                 <div class="stat-value" id="nextPaymentDue">-</div>
+            </div>
+            <div class="summary-card">
+                <h3>Pending Payments</h3>
+                <div class="summary-value" id="pendingCount" style="color: #f59e0b;">0</div>
+            </div>
+        </div>
+
+        <div class="pay-now-section">
+            <div class="pay-now-content">
+                <div class="pay-now-info">
+                    <h3>💳 Pay Your Rent</h3>
+                    <p>Choose your preferred payment method below</p>
+                </div>
+                <button class="btn-pay" onclick="openPaymentModal()">Make Payment</button>
+            </div>
+        </div>
+
+        <div class="payment-history">
+            <h3>Payment History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Reference</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentHistoryBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            Loading payment history...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Method Selection Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Choose Payment Method</h3>
+                <p style="color: #718096;">Select how you want to pay your rent</p>
+            </div>
+
+            <div class="payment-method-grid">
+                <div class="method-card" onclick="selectPaymentMethod('gcash')">
+                    <div class="method-icon">💙</div>
+                    <div class="method-name">GCash</div>
+                    <div class="method-desc">Mobile wallet payment</div>
+                </div>
+                <div class="method-card" onclick="selectPaymentMethod('bpi')">
+                    <div class="method-icon">🏦</div>
+                    <div class="method-name">BPI Transfer</div>
+                    <div class="method-desc">Bank transfer payment</div>
+                </div>
+                <div class="method-card" onclick="selectPaymentMethod('cash')">
+                    <div class="method-icon">💵</div>
+                    <div class="method-name">Cash</div>
+                    <div class="method-desc">Pay in person</div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Payment Details</h3>
+            </div>
+            <div id="detailsContent" style="padding: 20px;"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/payment-storage.js"></script>
+    <script>
+        let selectedMethod = null;
+        let currentTenantData = null;
+
+        // Check authentication and load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            const session = localStorage.getItem("rentarium_session");
+            if (!session) {
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            const user = JSON.parse(session);
+
+            // Only allow tenants
+            if (user.role !== "tenant") {
+                alert("Access denied. This is a tenant-only page.");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Check session expiration
+            if (Date.now() > user.expiresAt) {
+                alert("Session expired. Please login again.");
+                localStorage.removeItem("rentarium_session");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Load tenant data using PaymentStorage
+            currentTenantData = PaymentStorage.getCurrentTenant();
+            
+            if (!currentTenantData) {
+                alert("Tenant information not found.");
+                localStorage.removeItem("rentarium_session");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Update user profile in sidebar
+            updateUserProfile();
+            
+            // Load payment data
+            loadDashboardStats();
+            loadPaymentHistory();
+
+            // Logout functionality
+        document.getElementById("logoutBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Confirmation
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            if (!confirmLogout) return;
+
+            // Proceed if confirmed
+            localStorage.removeItem("rentarium_session");
+            window.location.href = "Login-Form.html";
+        });
+            });
+        
+
+        function updateUserProfile() {
+            // Get initials for avatar
+            function getInitials(name) {
+                if (!name) return 'TN';
+                const names = name.trim().split(' ');
+                if (names.length >= 2) {
+                    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+                }
+                return name.substring(0, 2).toUpperCase();
+            }
+
+            document.getElementById('userName').textContent = currentTenantData.name;
+            document.getElementById('userAvatar').textContent = getInitials(currentTenantData.name);
+        }
+
+        
+
+        function loadDashboardStats() {
+            const payments = PaymentStorage.getTenantPayments();
+            const pending = payments.filter(p => p.status === 'pending').length;
+
+            document.getElementById('monthlyRent').textContent = `₱${currentTenantData.monthlyRent.toLocaleString()}`;
+            document.getElementById('nextPaymentDue').textContent = formatDate(PaymentStorage.getNextDueDate());
+            document.getElementById('pendingCount').textContent = pending;
+        }
+
+        function loadPaymentHistory() {
+            const payments = PaymentStorage.getTenantPayments();
+            const tbody = document.getElementById('paymentHistoryBody');
+
+            if (payments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            No payment history yet. Make your first payment above!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Sort by date (newest first)
+            payments.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
+
+            tbody.innerHTML = payments.map(payment => `
+                <tr>
+                    <td><span style="font-family: monospace; font-size: 12px;">${payment.id}</span></td>
+                    <td><span style="font-family: monospace; font-size: 12px;">${payment.reference}</span></td>
+                    <td style="font-weight: 600;">₱${payment.amount.toLocaleString()}</td>
+                    <td><span class="method-badge">${capitalizeMethod(payment.method)}</span></td>
+                    <td>${formatDateTime(payment.submittedDate)}</td>
+                    <td><span class="status-badge status-${payment.status}">${capitalizeStatus(payment.status)}</span></td>
+                    <td>
+                        <button class="action-btn view" onclick="viewPaymentDetails('${payment.id}')">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openPaymentModal() {
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedMethod = null;
+        }
+
+        function selectPaymentMethod(method) {
+            selectedMethod = method;
+            
+            if (method === 'gcash') {
+                // Redirect to GCash mockup page with payment data
+                const params = new URLSearchParams({
+                    amount: currentTenantData.monthlyRent,
+                    tenantName: currentTenantData.name,
+                    unit: currentTenantData.unit,
+                    dueDate: PaymentStorage.getNextDueDate()
+                });
+                window.location.href = `../Users/Gcash-Payment.html?${params.toString()}`;
+            } else if (method === 'bpi') {
+                // Redirect to BPI mockup page
+                const params = new URLSearchParams({
+                    amount: currentTenantData.monthlyRent,
+                    tenantName: currentTenantData.name,
+                    unit: currentTenantData.unit,
+                    dueDate: PaymentStorage.getNextDueDate()
+                });
+                window.location.href = `../Users/BPI-Payment.html?${params.toString()}`;
+            } else if (method === 'cash') {
+                // Generate cash payment slip
+                const payment = PaymentStorage.createPayment({
+                    method: 'cash',
+                    status: 'pending',
+                    amount: currentTenantData.monthlyRent,
+                    notes: 'Cash payment - awaiting landlord confirmation'
+                });
+                
+                // Redirect to cash slip
+                window.location.href = `../Users/Cash-Payment.html?paymentId=${payment.id}`;
+            }
+        }
+
+        function viewPaymentDetails(paymentId) {
+            const payment = PaymentStorage.getPaymentById(paymentId);
+            if (!payment) return;
+
+            document.getElementById('detailsContent').innerHTML = `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">PAYMENT ID</div>
+                            <div style="font-weight: 600; font-family: monospace;">${payment.id}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">REFERENCE</div>
+                            <div style="font-weight: 600; font-family: monospace;">${payment.reference}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">AMOUNT</div>
+                            <div style="font-weight: 600; font-size: 24px; color: #667eea;">₱${payment.amount.toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">STATUS</div>
+                            <span class="status-badge status-${payment.status}" style="display: inline-block; margin-top: 5px;">
+                                ${capitalizeStatus(payment.status)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <div style="color: #64748b; font-size: 13px; margin-bottom: 5px;">Payment Method</div>
+                        <div style="font-weight: 600;">${capitalizeMethod(payment.method)}</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 13px; margin-bottom: 5px;">Unit</div>
+                        <div style="font-weight: 600;">${payment.unitNumber}</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 13px; margin-bottom: 5px;">Due Date</div>
+                        <div style="font-weight: 600;">${formatDate(payment.dueDate)}</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 13px; margin-bottom: 5px;">Submitted</div>
+                        <div style="font-weight: 600;">${formatDateTime(payment.submittedDate)}</div>
+                    </div>
+                </div>
+
+                ${payment.notes ? `
+                <div style="background: #fffbeb; border-left: 3px solid #f59e0b; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                    <div style="font-weight: 600; color: #92400e; margin-bottom: 5px;">Notes</div>
+                    <div style="color: #78350f; font-size: 14px;">${payment.notes}</div>
+                </div>
+                ` : ''}
+
+                ${payment.adminNotes ? `
+                <div style="background: #f0f9ff; border-left: 3px solid #0ea5e9; padding: 15px; border-radius: 4px;">
+                    <div style="font-weight: 600; color: #075985; margin-bottom: 5px;">Admin Response</div>
+                    <div style="color: #0c4a6e; font-size: 14px;">${payment.adminNotes}</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        // Utility functions
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function formatDateTime(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function capitalizeMethod(method) {
+            const methods = {
+                'cash': 'Cash',
+                'gcash': 'GCash',
+                'bpi': 'BPI Transfer'
+            };
+            return methods[method] || method;
+        }
+
+        function capitalizeStatus(status) {
+            const statuses = {
+                'pending': 'Pending Verification',
+                'verified': 'Verified',
+                'completed': 'Completed',
+                'rejected': 'Rejected'
+            };
+            return statuses[status] || status;
+        }
+
+        // Close modals on overlay click
+        document.getElementById('paymentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'paymentModal') closePaymentModal();
+        });
+
+        document.getElementById('detailsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailsModal') closeDetailsModal();
+        });
+
+        // Back button protection
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, "", window.location.href);
+        };
+    </script>
+</body>
+</html>

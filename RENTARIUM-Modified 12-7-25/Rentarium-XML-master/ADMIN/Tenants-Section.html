@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rentarium - Tenants Management</title>
+  <link rel="stylesheet" href="../css/tenants-section.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo">RENTARIUM</div>
+      <nav>
+        <ul class="nav-menu">
+           <li><a href="Admin-Dashboard.html" class="nav-link"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+          <li><a href="Unit-Management.html" class="nav-link"><span class="nav-icon">🏢</span><span>Units Management</span></a></li>
+          <li><a href="Tenants-Section.html" class="nav-link"><span class="nav-icon">👥</span><span>Tenants Management</span></a></li>
+          <li><a href="CreateTenantAccount.html" class="nav-link"><span class="nav-icon">👤</span><span>Create Tenant Account</span></a></li>
+          <li><a href="Payments-Section.html" class="nav-link"><span class="nav-icon">💳</span><span>Payments</span></a></li>
+          <li><a href="Announcements-Section.html" class="nav-link"><span class="nav-icon">📢</span><span>Announcements</span></a></li>
+          <li><a href="../Users/Login-Form.html" class="nav-link"><span class="nav-icon">➡️</span><span>Logout</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-top">
+          <div class="header-title">
+            <h1>Tenants Management</h1>
+            <p>Manage tenant information, contact details, and lease agreements.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="exportCsvBtn">📥 Export</button>
+            <button class="btn btn-secondary" id="exportXmlBtn">🗎 Export XML</button>
+            <label class="btn btn-secondary" style="display:inline-block;cursor:pointer;">
+              🔁 Import XML
+              <input type="file" id="xmlFileInput" accept=".xml" style="display:none">
+            </label>
+            <a href="../ADMIN/CreateTenantAccount.html"> + Add New Tenant</a>
+            <button class="btn" id="resetSampleBtn" title="Reset to sample data">Reset</button>
+          </div>
+        </div>
+
+        <div class="filters-section" style="margin-top:12px">
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="🔍 Search by name, email, phone, or unit...">
+          </div>
+          <div class="filter-group" style="display:flex;gap:8px">
+            <select id="statusFilter" class="filter-select">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="inactive">InActive</option>
+              <option value="expired">Expired</option>
+            </select>
+            <select id="unitFilter" class="filter-select">
+              <option value="all">All Units</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <div class="stats-summary" id="statsSummary">
+        <!-- Stats inserted dynamically -->
+      </div>
+
+      <div class="content-card" style="margin-top:8px">
+        <div class="card-header">
+          <h3 class="card-title" id="listTitle">All Tenants</h3>
+          <div class="view-toggle">
+            <button class="view-btn active" id="tableViewBtn">Table View</button>
+            <button class="view-btn" id="gridViewBtn">Grid View</button>
+          </div>
+        </div>
+
+        <div id="tableContainer">
+          <table class="tenants-table">
+            <thead>
+              <tr>
+                <th>Tenant</th>
+                <th>Contact</th>
+                <th>Unit</th>
+                <th>Rent (₱)</th>
+                <th>Lease Start</th>
+                <th>Lease End</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tenantsTbody">
+              <!-- rows generated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="gridContainer" style="display:none;margin-top:12px">
+          <div id="gridItems" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="tenantModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Tenant</h3>
+        <button id="closeModalBtn" class="link">Close</button>
+      </div>
+
+      <form id="tenantForm">
+        <input type="hidden" id="tenantId" />
+        
+        <h4 style="margin-bottom:12px;color:#1e293b">Personal Information</h4>
+        <div class="form-row">
+          <div class="col">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" type="text" required placeholder="John Smith">
+          </div>
+          <div class="col">
+            <label for="email">Email</label>
+            <input id="email" type="email" required placeholder="john.smith@email.com">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col">
+            <label for="phone">Phone Number</label>
+           <input type="number" id="phone" name="phone" placeholder="Enter phone number" required>
+          </div>
+        </div>
+
+        <h4 style="margin:20px 0 12px;color:#1e293b">Lease Information</h4>
+        <div class="form-row">
+          <div class="col">
+            <label for="unitNumber">Unit Number</label>
+            <select id="unitNumber" required>
+              <option value="">Select Unit</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="rentAmount">Monthly Rent (₱)</label>
+            <input id="rentAmount" type="number" min="0" required placeholder="15000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col">
+            <label for="leaseStart">Lease Start Date</label>
+            <input id="leaseStart" type="date" required>
+          </div>
+          <div class="col">
+            <label for="leaseEnd">Lease End Date</label>
+            <input id="leaseEnd" type="date" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="active">Active</option>
+              <option value="inactive">InActive</option>
+              <option value="pending">Pending</option>
+              <option value="expired">Expired</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="deposit">Security Deposit (₱)</label>
+            <input id="deposit" type="number" min="0" placeholder="30000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col" style="flex:1">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" rows="3" placeholder="Additional information about the tenant..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tenant Details Modal -->
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal modal-large" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="detailsModalTitle">Tenant Details</h3>
+        <button id="closeDetailsBtn" class="link">Close</button>
+      </div>
+      <div id="detailsContent" style="padding:20px">
+        <!-- Details content inserted dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/tenants-section.js"></script>
+</body>
+</html>
