@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<units>
+  <unit>
+    <unitNumber>B-201</unitNumber>
+    <building>B</building>
+    <floor>1</floor>
+    <type>1br</type>
+    <tenant> </tenant>
+    <rent>7500</rent>
+    <status>available</status>
+    <moveIn></moveIn>
+  </unit>
+  <unit>
+    <unitNumber>B-202</unitNumber>
+    <building>B</building>
+    <floor>2</floor>
+    <type>2br</type>
+    <tenant></tenant>
+    <rent>15000</rent>
+    <status>available</status>
+    <moveIn></moveIn>
+  </unit>
+
+</units>
