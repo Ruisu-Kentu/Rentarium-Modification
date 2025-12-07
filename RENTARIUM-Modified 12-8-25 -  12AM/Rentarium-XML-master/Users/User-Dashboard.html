@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentarium - Tenant Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tenant-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: -30px;
+            margin-bottom: 30px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Notification */
+        #notification {
+            display: none;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 18px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+            font-size: 15px;
+            align-items: center;
+            gap: 2px;
+        }
+
+        #notification::before {
+            content: "🔔 New";
+            font-size: 14px;
+            background: white;
+            color: #ee5a52;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .viewBtn {
+            font-size: 14px;
+            background: white;
+            color: #ee5a52;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .viewBtn:hover{
+            background-color: #afb4bd;
+        }
+
+        .clickToDismiss{
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+
+        .stat-card:nth-child(1) { border-left-color: #667eea; }
+        .stat-card:nth-child(2) { border-left-color: #22c55e; }
+        .stat-card:nth-child(3) { border-left-color: #f59e0b; }
+        .stat-card:nth-child(4) { border-left-color: #10b981; }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        /* Room Information Card */
+        .info-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .info-card h2 {
+            color: #1e293b;
+            font-size: 22px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .user-profile-card {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #334155;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 220px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-role {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .tenant-label, .nav-text {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .user-profile-card {
+                width: 50px;
+                padding: 10px;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">Rentarium</div>
+            <div class="tenant-label">Tenant Portal</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../Users/User-Dashboard.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/User-Payment.html" class="nav-link">
+                            <span class="nav-icon">💳</span>
+                            <span class="nav-text">Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Announcements.html" class="nav-link">
+                            <span class="nav-icon">📢</span>
+                            <span class="nav-text">Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Login-Form.html" class="nav-link" id="logoutBtn">
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- User Profile Card -->
+            <div class="user-profile-card">
+                <div class="user-avatar" id="userAvatar">RO</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Ruisu Ohaha</div>
+                    <div class="user-role">Tenant</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 id="welcomeMessage">Welcome Back, Ruisu!</h1>
+                <p>Here's what's happening with your rental today</p>
+            </header>
+
+            <!-- Notification Banner -->
+            <div id="notification" onclick="dismissNotification()">
+                New announcement available! <span class="clickToDismiss">Click to dismiss.</span>
+                <button class="viewBtn" onclick="goToAnnouncements()">View</button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Current Room</div>
+                    <div class="stat-value" id="currentRoom">A3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Monthly Rent</div>
+                    <div class="stat-value" id="monthlyRent">₱12,500</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Next Payment Due</div>
+                    <div class="stat-value" id="nextPaymentDue"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Account Status</div>
+                    <div class="stat-value" style="color: #22c55e;" id="accountStatus"></div>
+                </div>
+            </div>
+
+            <!-- Room Information -->
+            <div class="info-card">
+                <h2>Your Room Information</h2>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Room Number:</span>
+                        <span class="info-value" id="roomNumber">A3</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Room Type:</span>
+                        <span class="info-value" id="roomType">Studio</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Monthly Rent:</span>
+                        <span class="info-value" id="displayMonthlyRent">₱12,500</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Move-in Date:</span>
+                        <span class="info-value" id="moveInDate">December 1, 2024</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Lease Start:</span>
+                        <span class="info-value" id="leaseStart">December 1, 2024</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Lease End:</span>
+                        <span class="info-value" id="leaseEnd">November 30, 2025</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Amenities:</span>
+                        <span class="info-value">Electricity and Water Included</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+        <script src="../js/payment-storage.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // FIX: Get session data from BOTH sessionStorage AND localStorage
+            const session = sessionStorage.getItem("rentarium_session") || 
+                           localStorage.getItem("rentarium_session");
+
+            // Check if user is logged in
+            if (!session) {
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            const user = JSON.parse(session);
+
+            // Only allow tenants
+            if (user.role !== "tenant") {
+                alert("Access denied. This is a tenant-only page.");
+                sessionStorage.removeItem('rentarium_session');
+                localStorage.removeItem('rentarium_session');
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Check session expiration (1 hour)
+            const loginTime = new Date(user.loginTime).getTime();
+            const now = Date.now();
+            const oneHour = 60 * 60 * 1000;
+            
+            if ((now - loginTime) >= oneHour) {
+                alert("Session expired. Please login again.");
+                sessionStorage.removeItem("rentarium_session");
+                localStorage.removeItem("rentarium_session");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Get all tenants from localStorage
+            const tenants = JSON.parse(localStorage.getItem('tenants')) || [];
+            
+            // Find the current tenant by username
+            const currentTenant = tenants.find(t => t.username === user.username);
+
+            if (!currentTenant) {
+                alert("Tenant information not found.");
+                sessionStorage.removeItem("rentarium_session");
+                localStorage.removeItem("rentarium_session");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            // Get units data to fetch room type
+            const units = JSON.parse(localStorage.getItem('units')) || {};
+            const assignedUnit = units[currentTenant.unitAssigned];
+
+            // Format date for display
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short',
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            }
+
+            // Format currency
+            function formatCurrency(amount) {
+                return '₱' + Number(amount).toLocaleString('en-US');
+            }
+
+            // Get initials for avatar
+            function getInitials(name) {
+                if (!name) return 'TN';
+                const names = name.trim().split(' ');
+                if (names.length >= 2) {
+                    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+                }
+                return name.substring(0, 2).toUpperCase();
+            }
+
+            // Update all dashboard elements
+            const firstName = currentTenant.name.split(' ')[0];
+            document.getElementById('welcomeMessage').textContent = `Welcome Back, ${firstName}!`;
+            document.getElementById('userName').textContent = currentTenant.name;
+            document.getElementById('userAvatar').textContent = getInitials(currentTenant.name);
+
+            // Update stat cards
+            document.getElementById('currentRoom').textContent = currentTenant.unitAssigned || 'N/A';
+            document.getElementById('monthlyRent').textContent = formatCurrency(currentTenant.rentAmount || 0);
+            const nextDueDateISO = PaymentStorage.getNextDueDate();
+            document.getElementById('nextPaymentDue').textContent = formatDate(nextDueDateISO);
+            document.getElementById('accountStatus').textContent = currentTenant.status || 'active';
+
+            // Update room information section
+            document.getElementById('roomNumber').textContent = currentTenant.unitAssigned || 'N/A';
+            document.getElementById('roomType').textContent = assignedUnit ? assignedUnit.type : 'N/A';
+            document.getElementById('displayMonthlyRent').textContent = formatCurrency(currentTenant.rentAmount || 0);
+            document.getElementById('moveInDate').textContent = formatDate(currentTenant.leaseStart);
+            document.getElementById('leaseStart').textContent = formatDate(currentTenant.leaseStart);
+            document.getElementById('leaseEnd').textContent = formatDate(currentTenant.leaseEnd);
+
+            // Back button protection
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = function () {
+                window.history.pushState(null, "", window.location.href);
+            };
+
+            // Check for new announcements
+            checkForNew();
+        });
+
+        // Announcement notification functions
+        function loadAnnouncements() {
+            return JSON.parse(localStorage.getItem("announcements")) || [];
+        }
+
+        function checkForNew() {
+            const announcements = loadAnnouncements();
+            if (announcements.length === 0) return;
+            const lastSeen = localStorage.getItem("user_last_seen_announcement") || 0;
+            const latestId = Math.max(...announcements.map(a => a.id));
+            if (latestId > lastSeen) {
+                document.getElementById("notification").style.display = "flex";
+            }
+        }
+
+        function dismissNotification() {
+            document.getElementById("notification").style.display = "none";
+            const announcements = loadAnnouncements();
+            if (announcements.length > 0) {
+                localStorage.setItem("user_last_seen_announcement", Math.max(...announcements.map(a => a.id)));
+            }
+        }
+
+        function goToAnnouncements(){
+            window.location.href = "../Users/Announcements.html";
+        }
+
+        // FIX: Logout functionality - Clear BOTH storage
+        document.getElementById("logoutBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Confirmation
+            const confirmLogout = confirm("Are you sure you want to logout?");
+            if (!confirmLogout) return;
+
+            // Proceed if confirmed - Clear BOTH
+            sessionStorage.removeItem('rentarium_session'); 
+            localStorage.removeItem('rentarium_session');
+            window.location.href = "Login-Form.html";
+        });
+    </script>
+</body>
+</html>

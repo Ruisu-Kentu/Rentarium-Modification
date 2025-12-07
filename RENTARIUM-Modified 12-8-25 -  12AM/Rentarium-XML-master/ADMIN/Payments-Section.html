@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rentarium - Payments Management</title>
+  <link rel="stylesheet" href="../css/payment-section.css">
+  <style>
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .action-btn.approve {
+      background: #10b981;
+      color: white;
+    }
+    .action-btn.reject {
+      background: #ef4444;
+      color: white;
+    }
+    .action-btn.view {
+      background: #667eea;
+      color: white;
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-verified { background: #d1fae5; color: #065f46; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    
+    .payment-type-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+    
+    .bill-breakdown-box {
+      background: #f0f9ff;
+      border-left: 3px solid #0ea5e9;
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .bill-breakdown-title {
+      font-size: 11px;
+      color: #075985;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    
+    .bill-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #0c4a6e;
+    }
+    
+    .bill-item:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo">RENTARIUM</div>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="Admin-Dashboard.html" class="nav-link"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+          <li><a href="#" class="nav-link"><span class="nav-icon">🏢</span><span>Units Management</span></a></li>
+          <li><a href="Tenants-Section.html" class="nav-link"><span class="nav-icon">👥</span><span>Tenants Management</span></a></li>
+          <li><a href="CreateTenantAccount.html" class="nav-link"><span class="nav-icon">👤</span><span>Create Tenant Account</span></a></li>
+          <li><a href="#" class="nav-link active"><span class="nav-icon">💳</span><span>Payments</span></a></li>
+          <li><a href="Announcements-Section.html" class="nav-link"><span class="nav-icon">📢</span><span>Announcements</span></a></li>
+          <li><a href="../Users/Login-Form.html" class="nav-link"><span class="nav-icon">➡️</span><span>Logout</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-top">
+          <div class="header-title">
+            <h1>Payments Management</h1>
+            <p>Track rent payments, verify transactions, and manage payment history.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="exportCsvBtn">📥 Export CSV</button>
+            <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div class="filters-section" style="margin-top:12px">
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="🔍 Search by tenant name, unit, or reference...">
+          </div>
+          <div class="filter-group" style="display:flex;gap:8px">
+            <select id="statusFilter" class="filter-select">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="verified">Verified</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <select id="methodFilter" class="filter-select">
+              <option value="all">All Methods</option>
+              <option value="cash">Cash</option>
+              <option value="gcash">GCash</option>
+              <option value="bpi">BPI Transfer</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <div class="stats-summary" id="statsSummary"></div>
+
+      <div class="content-card" style="margin-top:8px">
+        <div class="card-header">
+          <h3 class="card-title" id="listTitle">All Payments</h3>
+          <div class="view-toggle">
+            <button class="view-btn active" id="tableViewBtn">Table View</button>
+            <button class="view-btn" id="gridViewBtn">Grid View</button>
+          </div>
+        </div>
+
+        <div id="tableContainer">
+          <table class="payments-table">
+            <thead>
+              <tr>
+                <th>Payment ID</th>
+                <th>Tenant</th>
+                <th>Unit</th>
+                <th>Type</th>
+                <th>Amount (₱)</th>
+                <th>Method</th>
+                <th>Reference</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTbody"></tbody>
+          </table>
+        </div>
+
+        <div id="gridContainer" style="display:none;margin-top:12px">
+          <div id="gridItems" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Payment Details Modal -->
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal modal-large" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="detailsModalTitle">Payment Details</h3>
+        <button id="closeDetailsBtn" class="link">Close</button>
+      </div>
+      <div id="detailsContent" style="padding:20px"></div>
+    </div>
+  </div>
+
+  <script src="../js/full-payment-function.js"></script>
+  <script>
+    let currentView = 'table';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderStats();
+      renderPayments();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('closeDetailsBtn').addEventListener('click', closeDetailsModal);
+      document.getElementById('tableViewBtn').addEventListener('click', () => switchView('table'));
+      document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
+      document.getElementById('searchInput').addEventListener('input', filterPayments);
+      document.getElementById('statusFilter').addEventListener('change', filterPayments);
+      document.getElementById('methodFilter').addEventListener('change', filterPayments);
+      document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+      document.getElementById('refreshBtn').addEventListener('click', () => {
+        renderStats();
+        renderPayments();
+        filterPayments();
+      });
+
+      document.getElementById('detailsModal').addEventListener('click', (e) => {
+        if (e.target.id === 'detailsModal') closeDetailsModal();
+      });
+    }
+
+    function renderStats() {
+      const stats = PaymentStorage.getPaymentStats();
+      
+      const collectionRate = stats.total > 0 
+        ? Math.round((stats.verified / stats.total) * 100)
+        : 0;
+
+      document.getElementById('statsSummary').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">₱${stats.totalAmount.toLocaleString()}</div>
+          <div class="stat-label">Total Payments</div>
+          <span class="stat-trend">${stats.total} transactions</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">₱${stats.paidAmount.toLocaleString()}</div>
+          <div class="stat-label">Verified Payments</div>
+          <span class="stat-trend positive">↑ ${stats.verified} verified</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">₱${stats.pendingAmount.toLocaleString()}</div>
+          <div class="stat-label">Pending Verification</div>
+          <span class="stat-trend">${stats.pending} pending</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${collectionRate}%</div>
+          <div class="stat-label">Verification Rate</div>
+          <span class="stat-trend positive">${stats.verified}/${stats.total}</span>
+        </div>
+      `;
+    }
+
+    function renderPayments(filteredPayments = null) {
+      const payments = filteredPayments || PaymentStorage.getAllPayments();
+      if (currentView === 'table') {
+        renderTableView(payments);
+      } else {
+        renderGridView(payments);
+      }
+    }
+
+    function renderTableView(payments) {
+      const tbody = document.getElementById('paymentsTbody');
+      
+      if (payments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#94a3b8">No payments found</td></tr>';
+        return;
+      }
+
+      payments.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
+
+      tbody.innerHTML = payments.map(payment => `
+        <tr>
+          <td><span style="font-family:monospace;font-size:12px;color:#64748b">${payment.id}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;background:#667eea;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">
+                ${getInitials(payment.tenantName)}
+              </div>
+              <span style="font-weight:600">${payment.tenantName}</span>
+            </div>
+          </td>
+          <td style="font-weight:600">${payment.unitNumber}</td>
+          <td><span class="payment-type-badge">${payment.paymentType || 'Monthly Rent'}</span></td>
+          <td style="font-weight:700;font-size:15px">₱${payment.amount.toLocaleString()}</td>
+          <td><span style="background:#f1f5f9;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600">${capitalizeMethod(payment.method)}</span></td>
+          <td><span style="font-family:monospace;font-size:11px;color:#64748b">${payment.reference}</span></td>
+          <td style="font-size:13px">${formatDateTime(payment.submittedDate)}</td>
+          <td><span class="status-badge status-${payment.status}">${capitalizeStatus(payment.status)}</span></td>
+          <td>
+            <div class="action-btns">
+              ${payment.status === 'pending' ? `
+                <button class="action-btn approve" onclick="approvePayment('${payment.id}')">✓</button>
+                <button class="action-btn reject" onclick="rejectPayment('${payment.id}')">✕</button>
+              ` : ''}
+              <button class="action-btn view" onclick="viewPayment('${payment.id}')">View</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderGridView(payments) {
+      const grid = document.getElementById('gridItems');
+      
+      if (payments.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;padding:40px;color:#94a3b8;grid-column:1/-1">No payments found</p>';
+        return;
+      }
+
+      payments.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
+
+      grid.innerHTML = payments.map(payment => `
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
+            <div>
+              <div style="font-family:monospace;font-size:12px;color:#64748b;margin-bottom:5px">${payment.id}</div>
+              <div style="font-weight:700;color:#1e293b;margin-bottom:3px">${payment.tenantName}</div>
+              <div style="font-size:13px;color:#64748b">${payment.unitNumber}</div>
+              <span class="payment-type-badge" style="margin-top:5px;display:inline-block">${payment.paymentType || 'Monthly Rent'}</span>
+            </div>
+            <span class="status-badge status-${payment.status}">${capitalizeStatus(payment.status)}</span>
+          </div>
+          <div style="font-size:28px;font-weight:700;color:#667eea;margin-bottom:15px">₱${payment.amount.toLocaleString()}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px;background:#f8fafc;border-radius:8px;margin-bottom:15px">
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">METHOD</div>
+              <div style="font-size:13px;font-weight:600">${capitalizeMethod(payment.method)}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">SUBMITTED</div>
+              <div style="font-size:13px;font-weight:600">${formatDate(payment.submittedDate)}</div>
+            </div>
+          </div>
+          <div class="action-btns">
+            ${payment.status === 'pending' ? `
+              <button class="action-btn approve" onclick="approvePayment('${payment.id}')">Approve</button>
+              <button class="action-btn reject" onclick="rejectPayment('${payment.id}')">Reject</button>
+            ` : ''}
+            <button class="action-btn view" onclick="viewPayment('${payment.id}')">View Details</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+      document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+      document.getElementById('tableContainer').style.display = view === 'table' ? 'block' : 'none';
+      document.getElementById('gridContainer').style.display = view === 'grid' ? 'block' : 'none';
+      renderPayments();
+    }
+
+    function approvePayment(paymentId) {
+      if (!confirm('Approve this payment? This will mark it as verified.')) return;
+      
+      const adminNotes = prompt('Add verification notes (optional):') || 'Payment verified and approved by admin';
+      PaymentStorage.updatePaymentStatus(paymentId, 'verified', adminNotes);
+      
+      renderStats();
+      renderPayments();
+      filterPayments();
+      
+      alert('✅ Payment approved successfully!');
+    }
+
+    function rejectPayment(paymentId) {
+      const reason = prompt('Enter reason for rejection:');
+      if (!reason) return;
+      
+      PaymentStorage.updatePaymentStatus(paymentId, 'rejected', `Rejected: ${reason}`);
+      
+      renderStats();
+      renderPayments();
+      filterPayments();
+      
+      alert('❌ Payment rejected.');
+    }
+
+    function viewPayment(paymentId) {
+      const payment = PaymentStorage.getPaymentById(paymentId);
+      if (!payment) return;
+
+      document.getElementById('detailsModalTitle').textContent = `Payment Details - ${payment.id}`;
+      document.getElementById('detailsContent').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px">
+          <div>
+            <h4 style="color:#64748b;font-size:12px;text-transform:uppercase;margin-bottom:15px">Payment Information</h4>
+            <div style="background:#f8fafc;padding:20px;border-radius:8px">
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">PAYMENT ID</div>
+                <div style="font-weight:700;font-family:monospace">${payment.id}</div>
+              </div>
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">PAYMENT TYPE</div>
+                <span class="payment-type-badge">${payment.paymentType || 'Monthly Rent'}</span>
+              </div>
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">REFERENCE</div>
+                <div style="font-weight:700;font-family:monospace;font-size:14px">${payment.reference}</div>
+              </div>
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">AMOUNT</div>
+                <div style="font-weight:700;font-size:32px;color:#667eea">₱${payment.amount.toLocaleString()}</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#64748b;margin-bottom:5px">STATUS</div>
+                <span class="status-badge status-${payment.status}">${capitalizeStatus(payment.status)}</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 style="color:#64748b;font-size:12px;text-transform:uppercase;margin-bottom:15px">Tenant Information</h4>
+            <div style="background:#f8fafc;padding:20px;border-radius:8px">
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">TENANT NAME</div>
+                <div style="font-weight:700">${payment.tenantName}</div>
+              </div>
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">UNIT</div>
+                <div style="font-weight:700">${payment.unitNumber}</div>
+              </div>
+              <div style="margin-bottom:15px">
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">DUE DATE</div>
+                <div style="font-weight:700">${formatDate(payment.dueDate)}</div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:#64748b;margin-bottom:3px">SUBMITTED</div>
+                <div style="font-weight:700">${formatDateTime(payment.submittedDate)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${payment.billDetails ? `
+        <div class="bill-breakdown-box">
+          <div class="bill-breakdown-title">📊 Bill Breakdown</div>
+          ${payment.billDetails.split(', ').map(bill => {
+            const [label, value] = bill.split(': ');
+            return `<div class="bill-item"><span>${label}:</span><strong>${value}</strong></div>`;
+          }).join('')}
+        </div>
+        ` : ''}
+
+        <div style="background:#f8fafc;padding:20px;border-radius:8px;margin-bottom:20px">
+          <h4 style="color:#64748b;font-size:12px;text-transform:uppercase;margin-bottom:15px">Payment Method Details</h4>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px">
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">METHOD</div>
+              <div style="font-weight:700">${capitalizeMethod(payment.method)}</div>
+            </div>
+            ${payment.metadata && payment.metadata.gcashNumber ? `
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">GCASH NUMBER</div>
+              <div style="font-weight:700">${payment.metadata.gcashNumber}</div>
+            </div>
+            ` : ''}
+            ${payment.metadata && payment.metadata.accountName ? `
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">ACCOUNT NAME</div>
+              <div style="font-weight:700">${payment.metadata.accountName}</div>
+            </div>
+            ` : ''}
+            ${payment.metadata && payment.metadata.fromAccount ? `
+            <div>
+              <div style="font-size:11px;color:#64748b;margin-bottom:3px">FROM ACCOUNT</div>
+              <div style="font-weight:700">${payment.metadata.fromAccount}</div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+
+        ${payment.notes ? `
+        <div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:15px;border-radius:4px;margin-bottom:15px">
+          <div style="font-weight:600;color:#92400e;margin-bottom:5px">Tenant Notes</div>
+          <div style="color:#78350f;font-size:14px">${payment.notes}</div>
+        </div>
+        ` : ''}
+
+        ${payment.adminNotes ? `
+        <div style="background:#f0f9ff;border-left:3px solid #0ea5e9;padding:15px;border-radius:4px;margin-bottom:15px">
+          <div style="font-weight:600;color:#075985;margin-bottom:5px">Admin Notes</div>
+          <div style="color:#0c4a6e;font-size:14px">${payment.adminNotes}</div>
+        </div>
+        ` : ''}
+
+        ${payment.status === 'pending' ? `
+        <div style="display:flex;gap:12px;margin-top:20px">
+          <button class="btn btn-primary" onclick="approvePayment('${payment.id}');closeDetailsModal();" style="flex:1">Approve Payment</button>
+          <button class="btn btn-secondary" onclick="rejectPayment('${payment.id}');closeDetailsModal();" style="flex:1">Reject Payment</button>
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('detailsModal').classList.add('show');
+    }
+
+    function closeDetailsModal() {
+      document.getElementById('detailsModal').classList.remove('show');
+    }
+
+    function filterPayments() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const methodFilter = document.getElementById('methodFilter').value;
+
+      const filtered = PaymentStorage.filterPayments({
+        search: search,
+        status: statusFilter,
+        method: methodFilter
+      });
+
+      renderPayments(filtered);
+      
+      const statusText = statusFilter === 'all' ? 'All' : capitalizeStatus(statusFilter);
+      document.getElementById('listTitle').textContent = `${statusText} Payments (${filtered.length})`;
+    }
+
+    function exportToCSV() {
+      const payments = PaymentStorage.getAllPayments();
+      const headers = ['Payment ID', 'Tenant', 'Unit', 'Type', 'Amount', 'Method', 'Reference', 'Submitted', 'Status'];
+      const rows = payments.map(p => [
+        p.id, p.tenantName, p.unitNumber, p.paymentType || 'Monthly Rent', p.amount, p.method, p.reference, p.submittedDate, p.status
+      ]);
+
+      const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rentarium-payments-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatDateTime(dateStr) {
+      return new Date(dateStr).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function capitalizeMethod(method) {
+      const methods = { 'cash': 'Cash', 'gcash': 'GCash', 'bpi': 'BPI Transfer' };
+      return methods[method] || method;
+    }
+
+    function capitalizeStatus(status) {
+      const statuses = {
+        'pending': 'Pending Verification',
+        'verified': 'Verified',
+        'completed': 'Completed',
+        'rejected': 'Rejected'
+      };
+      return statuses[status] || status;
+    }
+
+    (function() {
+      function checkAuthentication() {
+          const sessionData = localStorage.getItem('rentarium_session');
+          
+          if (!sessionData) {
+              alert('Please login to access this page');
+              window.location.href = '../Users/Login-Form.html';
+              return null;
+          }
+
+          const session = JSON.parse(sessionData);
+          
+          if (session.role !== 'admin') {
+              alert('Access denied. Admin privileges required.');
+              window.location.href = '../Users/Login-Form.html';
+              return null;
+          }
+
+          const loginTime = new Date(session.loginTime).getTime();
+          const now = Date.now();
+          const oneHour = 60 * 60 * 1000;
+          
+          if ((now - loginTime) >= oneHour) {
+              alert('Your session has expired. Please login again.');
+              localStorage.removeItem('rentarium_session');
+              window.location.href = '../Users/Login-Form.html';
+              return null;
+          }
+
+          return session;
+      }
+
+      const currentSession = checkAuthentication();
+      
+      if (currentSession) {
+          const userNameElement = document.getElementById('userName');
+          if (userNameElement) {
+              userNameElement.textContent = currentSession.fullName || currentSession.username;
+          }
+      }
+
+      function handleLogout(e) {
+          e.preventDefault();
+          
+          if (confirm('Are you sure you want to logout?')) {
+              localStorage.removeItem('rentarium_session');
+              
+              const logs = JSON.parse(localStorage.getItem('security_logs') || '[]');
+              logs.push({
+                  timestamp: new Date().toISOString(),
+                  eventType: 'LOGOUT',
+                  username: currentSession ? currentSession.username : 'unknown'
+              });
+              localStorage.setItem('security_logs', JSON.stringify(logs));
+              
+              window.location.href = '../Users/Login-Form.html';
+          }
+      }
+      
+      document.addEventListener('DOMContentLoaded', function() {
+          const logoutBtn = document.getElementById('logoutBtn');
+          if (logoutBtn) {
+              logoutBtn.addEventListener('click', handleLogout);
+          }
+          
+          const logoutLinks = document.querySelectorAll('a[href*="Login-Form"], a[href="#logout"]');
+          logoutLinks.forEach(link => {
+              link.addEventListener('click', handleLogout);
+          });
+      });
+
+      document.addEventListener('visibilitychange', function() {
+          if (!document.hidden) {
+              checkAuthentication();
+          }
+      });
+  })();
+
+    const logoutLinks = document.querySelectorAll('a[href*="Login-Form.html"]');
+    logoutLinks.forEach(link => {
+      const linkText = link.textContent.toLowerCase();
+      if (linkText.includes('logout') || linkText.includes('➡️')) {
+        link.addEventListener('click', handleLogout);
+      }
+    });
+  </script>
+</body>
+</html>

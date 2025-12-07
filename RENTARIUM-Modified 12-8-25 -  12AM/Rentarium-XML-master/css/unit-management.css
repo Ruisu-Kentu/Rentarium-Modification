@@ -1,0 +1,339 @@
+/* ---------- Basic layout ---------- */
+ :root{
+     --bg:#f4f6f9;
+     --card:#fff;
+     --accent:#2563eb;
+     --muted:#6b7280;
+     --danger:#ef4444;
+     --success:#10b981;
+     --warning:#f59e0b;
+     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+ *{
+    box-sizing:border-box
+}
+ body{
+    margin:0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:#111
+}
+ .dashboard-container{
+    display:flex;
+    min-height:100vh
+}
+ aside.sidebar{
+     width:220px;
+    background:#0f1724;
+    color:#fff;
+    padding:20px 12px;
+     display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+ .logo{
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:1px
+}
+ .nav-menu{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:6px
+}
+ .nav-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px;
+    border-radius:8px;
+    color:#cbd5e1;
+    text-decoration:none
+}
+ .nav-link:hover{
+    background:rgba(255,255,255,0.04);
+    color:#fff
+}
+ .nav-link.active{
+    background:rgba(255,255,255,0.06);
+    color:#fff
+}
+ .nav-icon{
+    font-size:16px
+}
+ main.main-content{
+    flex:1;
+    padding:20px 28px;
+    min-width:0
+}
+ .header-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap
+}
+ .header-title h1{
+    margin:0;
+    font-size:32px;
+    color: white;
+    font-weight: bold;
+    
+}
+ .header-title p{
+    margin:4px 0 0;
+    color: #474b55;
+    font-size:13px
+}
+ .header-actions{
+    display:flex;
+    gap:8px;
+    align-items:center
+}
+ .btn{
+    padding:8px 12px;
+    border-radius:8px;
+    border:0;
+    cursor:pointer;
+    font-weight:600
+}
+ .btn-primary{
+    background:var(--accent);
+    color:#fff
+}
+ .btn-secondary{
+    background:#e6eefc;
+    border:1px solid rgba(37,99,235,0.12);
+    color:var(--accent)
+}
+ .filters-section{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-top:14px;
+    flex-wrap:wrap
+}
+ .search-box input{
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    min-width:280px
+}
+
+#searchInput{
+    color: #6b7280;
+}
+ .filter-select{
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid #d1d5db
+}
+ .stats-summary{
+    display:flex;
+    gap:12px;
+    margin:20px 0
+}
+ .stat-box{
+    background:var(--card);
+    padding: 32px;
+    border-radius:10px;
+    min-width:120px;
+    box-shadow:0 1px 4px rgba(2,6,23,0.06)
+}
+ .stat-label{
+    font-size:22px;
+    color:var(--muted)
+}
+ .stat-value{
+    font-size:28px;
+    font-weight:700;
+    margin-top:6px;
+    display: flex;
+    align-items:center;
+    gap:6px;
+
+}
+ .stat-percentage{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px
+}
+ .content-card{
+    background:var(--card);
+    padding:16px;
+    border-radius:12px;
+    box-shadow:0 4px 20px rgba(2,6,23,0.06)
+}
+ .card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px
+}
+ .view-toggle .view-btn{
+    padding:6px 10px;
+    border-radius:8px;
+    border:0;
+    background:transparent;
+    cursor:pointer
+}
+ .view-btn.active{
+    background:#eef2ff;
+    border-radius:8px
+}
+ table.units-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px
+}
+ table.units-table thead th{
+    text-align:left;
+    padding:10px;
+    color:var(--muted);
+    font-size:13px;
+    border-bottom:1px solid #eef2f6
+}
+ table.units-table tbody td{
+    padding:12px;
+    border-bottom:1px solid #f3f4f6;
+    vertical-align:middle
+}
+ .unit-info{
+    display:flex;
+    gap:12px;
+    align-items:center
+}
+ .unit-icon{
+    width:48px;
+    height:48px;
+    border-radius:8px;
+    background:#eef2ff;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700
+}
+ .tenant-info{
+    display:flex;
+    gap:10px;
+    align-items:center
+}
+ .tenant-avatar{
+    width:36px;
+    height:36px;
+    border-radius:6px;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color:#374151
+}
+ .status-badge{
+    padding:6px 8px;
+    border-radius:999px;
+    font-size:12px;
+    color:#fff;
+    display:inline-block
+}
+ .status-badge.occupied{
+    background:var(--danger)
+}
+ .status-badge.available{
+    background:var(--success)
+}
+ .status-badge.maintenance{
+    background:var(--warning);
+    color:#000
+}
+ .status-badge.reserved{
+    background:#6366f1
+}
+ .action-buttons .icon-btn{
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    margin-right:6px;
+    font-size:16px
+}
+/* Modal */
+ .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(2,6,23,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000
+}
+ .modal{
+    background:var(--card);
+    width:720px;
+    max-width:100%;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 6px 30px rgba(2,6,23,0.2)
+}
+ .modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center
+}
+ .form-row{
+    display:flex;
+    gap:8px;
+    margin-top:10px
+}
+ .form-row .col{
+    flex:1
+}
+ label{
+    display:block;
+    font-size:13px;
+    margin-bottom:6px;
+    color:var(--muted)
+}
+ input[type="text"], input[type="date"], input[type="number"], select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #e6eef2
+}
+ .modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:14px
+}
+/* responsive */
+ @media (max-width:900px){
+     aside.sidebar{
+        display:none
+    }
+     .header-top{
+        flex-direction:column;
+        align-items:stretch
+    }
+     .stats-summary{
+        flex-wrap:wrap
+    }
+}
+/* small helpers */
+ .muted{
+    color:var(--muted);
+    font-size:13px
+}
+ .small{
+    font-size:12px;
+    color:var(--muted)
+}
+ .link{
+    color:var(--accent);
+    cursor:pointer;
+    text-decoration:underline
+}
+ 
