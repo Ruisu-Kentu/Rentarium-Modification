@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Contract - Rentarium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tenant-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: -30px;
+            margin-bottom: 30px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .contract-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .contract-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .contract-header h2 {
+            font-size: 32px;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .contract-header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-terminated {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .contract-section {
+            margin-bottom: 30px;
+        }
+
+        .contract-section h3 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .rules-list li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .terms-text {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            color: #475569;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .agreement-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .agreement-box {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .termination-box {
+            background: #fee2e2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #ef4444;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #fef3c7;
+            border-radius: 8px;
+            border: 2px solid #fbbf24;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .checkbox-container label {
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .user-profile-card {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #334155;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 220px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-role {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f1f5f9;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            transform: rotate(90deg);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #ef4444;
+        }
+
+        .modal-header h2 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .termination-reason {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            margin-top: 10px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .termination-reason:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 20px 10px;
+            }
+
+            .tenant-label, .nav-text {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+
+            .nav-icon {
+                margin-right: 0;
+            }
+
+            .contract-container {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .user-profile-card {
+                width: 50px;
+                padding: 10px;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">Rentarium</div>
+            <div class="tenant-label">Tenant Portal</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../Users/User-Dashboard.html" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/User-Payment.html" class="nav-link">
+                            <span class="nav-icon">💳</span>
+                            <span class="nav-text">Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Announcements.html" class="nav-link">
+                            <span class="nav-icon">📢</span>
+                            <span class="nav-text">Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Rental-Contract.html" class="nav-link active">
+                            <span class="nav-icon">📝</span>
+                            <span class="nav-text">Rental Contract</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Users/Login-Form.html" class="nav-link" id="logoutBtn">
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="user-profile-card">
+                <div class="user-avatar" id="userAvatar">TN</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Tenant Name</div>
+                    <div class="user-role">Tenant</div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Rental Contract Agreement</h1>
+                <p>Review and agree to your rental terms</p>
+            </header>
+
+            <div class="contract-container">
+                <div class="contract-header">
+                    <h2>RESIDENTIAL LEASE AGREEMENT</h2>
+                    <p>Rentarium Property Management</p>
+                    <span class="status-badge" id="contractStatus">Pending Review</span>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <div class="contract-section">
+                    <h3><span class="section-icon">📋</span> Lease Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Tenant Name</div>
+                            <div class="info-value" id="tenantName">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Unit Number</div>
+                            <div class="info-value" id="unitNumber">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Unit Type</div>
+                            <div class="info-value" id="unitType">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Monthly Rent</div>
+                            <div class="info-value" id="monthlyRent">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Lease Start Date</div>
+                            <div class="info-value" id="leaseStart">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Lease End Date</div>
+                            <div class="info-value" id="leaseEnd">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Next Payment Due</div>
+                            <div class="info-value" id="nextPayment">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Contact Email</div>
+                            <div class="info-value" id="tenantEmail">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contract-section">
+                    <h3><span class="section-icon">📜</span> Property Rules & Regulations</h3>
+                    <ul class="rules-list">
+                        <li>No smoking is permitted anywhere on the premises, including inside units and common areas</li>
+                        <li>Maintain cleanliness in your unit and common areas at all times</li>
+                        <li>Noise levels must be kept reasonable, especially between 10 PM and 7 AM</li>
+                        <li>Pets are allowed with prior approval from management</li>
+                        <li>Guests are welcome but must be registered with management for extended stays</li>
+                        <li>Rent must be paid on or before the due date each month</li>
+                        <li>Proper disposal of garbage and recycling is mandatory</li>
+                        <li>Use of common facilities must be respectful and considerate of other tenants</li>
+                    </ul>
+                </div>
+
+                <div class="contract-section">
+                    <h3><span class="section-icon">📄</span> Terms & Conditions</h3>
+                    <div class="terms-text">
+                        <p style="margin-bottom: 15px;"><strong>1. RENT PAYMENT:</strong> Tenant agrees to pay rent monthly on or before the due date. Late payments may incur additional fees. Payment methods include GCash, BPI transfer, or cash with receipt.</p>
+                        
+                        <p style="margin-bottom: 15px;"><strong>2. UTILITIES:</strong> Electricity and water are not included in the monthly rent. Tenant is responsible for excessive usage beyond normal consumption.</p>
+                        
+                        <p style="margin-bottom: 15px;"><strong>3. MAINTENANCE:</strong> Landlord is responsible for major repairs and structural maintenance. Tenant is responsible for keeping the unit clean and reporting any issues promptly.</p>
+                        
+                        <p style="margin-bottom: 15px;"><strong>4. TERMINATION:</strong> Either party may terminate this agreement with 30 days written notice. Early termination by tenant may result in forfeiture of security deposit.</p>
+                        
+                        <p style="margin-bottom: 15px;"><strong>5. SECURITY DEPOSIT:</strong> A security deposit equivalent to one month's rent is required and will be returned within 30 days after lease termination, minus any deductions for damages or unpaid rent.</p>
+                        
+                        <p><strong>6. LIABILITY:</strong> Tenant agrees to maintain the property in good condition and is liable for any damages beyond normal wear and tear. Landlord is not responsible for tenant's personal property.</p>
+                    </div>
+                </div>
+
+                <div class="agreement-section" id="agreementSection">
+                    <h3><span class="section-icon">✍️</span> Agreement</h3>
+                    
+                    <div class="agreement-box" id="agreementBox">
+                        <p style="color: #64748b; margin-bottom: 15px;">
+                            By clicking "I Agree to Terms and Conditions" below, you acknowledge that you have read, understood, and agree to be bound by all the terms and conditions outlined in this rental agreement.
+                        </p>
+
+                        <div class="checkbox-container" id="agreementCheckbox" style="display: none;">
+                            <input type="checkbox" id="agreeTerms">
+                            <label for="agreeTerms">
+                                I have carefully read and understood all the terms and conditions of this rental agreement. I agree to comply with all rules, regulations, and payment obligations as stated above.
+                            </label>
+                        </div>
+
+                        <div id="agreementStatus" style="display: none;">
+                            <div style="background: #d1fae5; padding: 20px; border-radius: 8px; border: 2px solid #10b981;">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <span style="font-size: 40px;">✓</span>
+                                    <div>
+                                        <h4 style="color: #065f46; margin-bottom: 5px; font-size: 18px;">Contract Active</h4>
+                                        <p style="color: #065f46; font-size: 14px;">You agreed to this contract on <span id="agreementDate">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="terminationStatus" style="display: none;">
+                            <div class="termination-box">
+                                <h4 style="color: #991b1b; margin-bottom: 10px;">⚠️ Contract Terminated</h4>
+                                <p style="color: #7f1d1d; font-size: 13px; margin-bottom: 10px;">
+                                    <strong>Terminated by:</strong> <span id="terminatedBy">-</span><br>
+                                    <strong>Termination date:</strong> <span id="terminationDate">-</span>
+                                </p>
+                                <p style="color: #7f1d1d; font-size: 13px;">
+                                    <strong>Reason:</strong> <span id="terminationReason">-</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" id="actionButtons">
+                        <button class="btn btn-success" id="agreeButton" style="display: none;">
+                            ✓ I Agree to Terms and Conditions
+                        </button>
+                        <button class="btn btn-danger" id="terminateButton" style="display: none;">
+                            Terminate Contract
+                        </button>
+                        <a href="../Users/User-Dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="terminationModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTerminationModal()">×</button>
+            
+            <div class="modal-header">
+                <h2>⚠️ Terminate Contract</h2>
+                <p>Request contract termination</p>
+            </div>
+
+            <div style="padding: 20px;">
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+                    <p style="color: #92400e; font-size: 14px;">
+                        <strong>Important:</strong> Terminating your contract will end your rental agreement. As per the terms, you may need to provide 30 days notice and may forfeit your security deposit depending on the circumstances.
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; color: #1e293b; font-weight: 600;">
+                        Reason for Termination <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea 
+                        id="terminationReasonInput" 
+                        class="termination-reason" 
+                        placeholder="Please provide a detailed reason for why you wish to terminate your contract. This helps us improve our services and process your request appropriately."
+                        required
+                    ></textarea>
+                </div>
+
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="color: #64748b; font-size: 13px; line-height: 1.6;">
+                        <strong>Your Contract Details:</strong><br>
+                        Unit: <span id="termModalUnit">-</span><br>
+                        Monthly Rent: <span id="termModalRent">-</span><br>
+                        Lease End: <span id="termModalLeaseEnd">-</span>
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                    <button class="btn btn-danger" onclick="confirmTermination()">
+                        Submit Termination Request
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeTerminationModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTenant = null;
+        let contractData = null;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const session = localStorage.getItem("rentarium_session");
+            if (!session) {
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            const user = JSON.parse(session);
+            if (user.role !== "tenant") {
+                alert("Access denied. This is a tenant-only page.");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            const tenants = JSON.parse(localStorage.getItem('tenants')) || [];
+            currentTenant = tenants.find(t => t.username === user.username);
+
+            if (!currentTenant) {
+                alert("Tenant information not found.");
+                window.location.href = "../Users/Login-Form.html";
+                return;
+            }
+
+            document.getElementById('userName').textContent = currentTenant.name;
+            document.getElementById('userAvatar').textContent = getInitials(currentTenant.name);
+
+            loadContract();
+            checkTerminationNotifications();
+
+            document.getElementById('agreeTerms').addEventListener('change', function() {
+                document.getElementById('agreeButton').disabled = !this.checked;
+            });
+
+            document.getElementById('agreeButton').addEventListener('click', agreeToContract);
+            document.getElementById('terminateButton').addEventListener('click', showTerminationModal);
+
+            document.getElementById("logoutBtn").addEventListener("click", function (e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to logout?")) {
+                    localStorage.removeItem("rentarium_session");
+                    window.location.href = "../Users/Login-Form.html";
+                }
+            });
+
+            setInterval(checkTerminationNotifications, 3000);
+        });
+
+        function getInitials(name) {
+            if (!name) return 'TN';
+            const names = name.trim().split(' ');
+            if (names.length >= 2) {
+                return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'long',
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+        }
+
+        function formatCurrency(amount) {
+            return '₱' + Number(amount).toLocaleString('en-US');
+        }
+
+        function checkTerminationNotifications() {
+            const contracts = JSON.parse(localStorage.getItem('rental_contracts')) || {};
+            const contract = contracts[currentTenant.username];
+
+            if (contract && contract.terminated && contract.terminatedBy === 'Admin') {
+                const lastCheck = localStorage.getItem('last_termination_check_' + currentTenant.username);
+                const contractTermDate = new Date(contract.terminatedDate).getTime();
+
+                if (!lastCheck || contractTermDate > parseInt(lastCheck)) {
+                    localStorage.setItem('last_termination_check_' + currentTenant.username, contractTermDate.toString());
+                    location.reload();
+                }
+            }
+        }
+
+        
+
+        function loadContract() {
+            const contracts = JSON.parse(localStorage.getItem('rental_contracts')) || {};
+            const units = JSON.parse(localStorage.getItem('units')) || {};
+            
+            contractData = contracts[currentTenant.username];
+            const assignedUnit = units[currentTenant.unitAssigned];
+
+            document.getElementById('tenantName').textContent = currentTenant.name;
+            document.getElementById('unitNumber').textContent = currentTenant.unitAssigned || 'N/A';
+            document.getElementById('unitType').textContent = assignedUnit ? assignedUnit.type : 'N/A';
+            document.getElementById('monthlyRent').textContent = formatCurrency(currentTenant.rentAmount || 0);
+            document.getElementById('leaseStart').textContent = formatDate(currentTenant.leaseStart);
+            document.getElementById('leaseEnd').textContent = formatDate(currentTenant.leaseEnd);
+            document.getElementById('tenantEmail').textContent = currentTenant.email || 'N/A';
+
+            if (currentTenant.leaseEnd) {
+                const leaseEndDate = new Date(currentTenant.leaseEnd);
+                const nextPaymentDate = new Date(leaseEndDate);
+                nextPaymentDate.setDate(nextPaymentDate.getDate() - 1);
+                document.getElementById('nextPayment').textContent = formatDate(nextPaymentDate.toISOString());
+            }
+
+            if (!contractData) {
+                showAlert('warning', '⚠ No contract has been generated yet. Please wait for the landlord to create your contract.');
+                document.getElementById('agreementSection').style.display = 'none';
+                return;
+            }
+
+            const statusBadge = document.getElementById('contractStatus');
+            const agreeButton = document.getElementById('agreeButton');
+            const terminateButton = document.getElementById('terminateButton');
+            const agreementCheckbox = document.getElementById('agreementCheckbox');
+            const agreementStatus = document.getElementById('agreementStatus');
+            const terminationStatus = document.getElementById('terminationStatus');
+
+            if (contractData.terminated) {
+                statusBadge.textContent = '❌ Terminated';
+                statusBadge.className = 'status-badge status-terminated';
+                
+                agreementCheckbox.style.display = 'none';
+                agreeButton.style.display = 'none';
+                terminateButton.style.display = 'none';
+                agreementStatus.style.display = 'none';
+                terminationStatus.style.display = 'block';
+
+                document.getElementById('terminatedBy').textContent = contractData.terminatedBy || 'N/A';
+                document.getElementById('terminationDate').textContent = formatDate(contractData.terminatedDate);
+                document.getElementById('terminationReason').textContent = contractData.terminationReason || 'No reason provided';
+
+                if (contractData.terminatedBy === 'Admin') {
+                    showAlert('danger', '⚠️ Your contract has been terminated by the administrator on ' + formatDate(contractData.terminatedDate) + '. Please contact management for more information.');
+                } else {
+                    showAlert('danger', '✓ You have successfully terminated this contract on ' + formatDate(contractData.terminatedDate) + '.');
+                }
+            } else if (contractData.agreed) {
+                statusBadge.textContent = '✓ Contract Active';
+                statusBadge.className = 'status-badge status-active';
+                
+                agreementCheckbox.style.display = 'none';
+                agreeButton.style.display = 'none';
+                terminateButton.style.display = 'inline-block';
+                agreementStatus.style.display = 'block';
+                terminationStatus.style.display = 'none';
+                
+                document.getElementById('agreementDate').textContent = formatDate(contractData.agreedDate);
+                
+                showAlert('success', '✅ Your rental contract is active! You agreed to the terms on ' + formatDate(contractData.agreedDate));
+            } else {
+                statusBadge.textContent = 'Pending Review';
+                statusBadge.className = 'status-badge status-pending';
+                
+                showAlert('info', '👋 Please review all terms carefully. Once you agree, the contract becomes active.');
+                agreementCheckbox.style.display = 'flex';
+                agreeButton.style.display = 'inline-block';
+                agreeButton.disabled = true;
+                terminateButton.style.display = 'none';
+                agreementStatus.style.display = 'none';
+                terminationStatus.style.display = 'none';
+            }
+        }
+
+        function agreeToContract() {
+            if (!document.getElementById('agreeTerms').checked) {
+                alert('Please check the agreement box first.');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to agree to this contract? Once you agree, the contract becomes active immediately.')) {
+                return;
+            }
+
+            const contracts = JSON.parse(localStorage.getItem('rental_contracts')) || {};
+            
+            if (!contracts[currentTenant.username]) {
+                alert('Contract not found. Please contact your landlord.');
+                return;
+            }
+
+            contracts[currentTenant.username].agreed = true;
+            contracts[currentTenant.username].agreedDate = new Date().toISOString();
+
+            localStorage.setItem('rental_contracts', JSON.stringify(contracts));
+
+            createAdminNotification();
+
+            alert('✓ You have agreed to the rental contract! The contract is now active.');
+            location.reload();
+        }
+
+        function createAdminNotification() {
+            const notifications = JSON.parse(localStorage.getItem('contract_notifications')) || [];
+            
+            notifications.push({
+                id: Date.now(),
+                tenantUsername: currentTenant.username,
+                tenantName: currentTenant.name,
+                unitNumber: currentTenant.unitAssigned,
+                message: `${currentTenant.name} (Unit ${currentTenant.unitAssigned}) has agreed to the rental contract.`,
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+
+            localStorage.setItem('contract_notifications', JSON.stringify(notifications));
+        }
+
+        function showTerminationModal() {
+            if (!contractData) return;
+
+            document.getElementById('termModalUnit').textContent = currentTenant.unitAssigned;
+            document.getElementById('termModalRent').textContent = formatCurrency(currentTenant.rentAmount);
+            document.getElementById('termModalLeaseEnd').textContent = formatDate(currentTenant.leaseEnd);
+            document.getElementById('terminationReasonInput').value = '';
+
+            document.getElementById('terminationModal').classList.add('active');
+        }
+
+        function confirmTermination() {
+            const reason = document.getElementById('terminationReasonInput').value.trim();
+
+            if (!reason) {
+                alert('Please provide a reason for termination.');
+                return;
+            }
+
+            if (reason.length < 20) {
+                alert('Please provide a more detailed reason (at least 20 characters).');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to terminate this contract? This action cannot be undone and may result in forfeiture of your security deposit.')) {
+                return;
+            }
+
+            const contracts = JSON.parse(localStorage.getItem('rental_contracts')) || {};
+            
+            if (contracts[currentTenant.username]) {
+                contracts[currentTenant.username].terminated = true;
+                contracts[currentTenant.username].terminatedBy = 'Tenant';
+                contracts[currentTenant.username].terminatedDate = new Date().toISOString();
+                contracts[currentTenant.username].terminationReason = reason;
+
+                localStorage.setItem('rental_contracts', JSON.stringify(contracts));
+
+                const notifications = JSON.parse(localStorage.getItem('termination_notifications')) || [];
+                notifications.push({
+                    id: Date.now(),
+                    tenantUsername: currentTenant.username,
+                    tenantName: currentTenant.name,
+                    unitNumber: currentTenant.unitAssigned,
+                    terminatedBy: 'Tenant',
+                    reason: reason,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                });
+                localStorage.setItem('termination_notifications', JSON.stringify(notifications));
+
+                alert('✓ Your contract termination request has been submitted successfully. The administrator will be notified.');
+                closeTerminationModal();
+                location.reload();
+            }
+        }
+
+        function closeTerminationModal() {
+            document.getElementById('terminationModal').classList.remove('active');
+        }
+
+        document.getElementById('terminationModal').addEventListener('click', function(e) {
+            if (e.target === this) closeTerminationModal();
+        });
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            let alertClass = 'alert-info';
+            let icon = 'ℹ';
+            
+            if (type === 'success') {
+                alertClass = 'alert-success';
+                icon = '✓';
+            } else if (type === 'warning') {
+                alertClass = 'alert-warning';
+                icon = '⚠';
+            } else if (type === 'danger') {
+                alertClass = 'alert-danger';
+                icon = '⚠';
+            }
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    <span style="font-size: 18px">${message}</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

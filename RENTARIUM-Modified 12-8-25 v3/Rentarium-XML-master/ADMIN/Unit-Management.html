@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rentarium - Units Management</title>
+  <link rel="stylesheet" href="../css/unit-management-test.css">
+  
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo">RENTARIUM</div>
+      <nav>
+         <ul class="nav-menu">
+           <li><a href="Admin-Dashboard.html" class="nav-link"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+          <li><a href="Unit-Management.html" class="nav-link active"><span class="nav-icon">🏢</span><span>Units Management</span></a></li>
+          <li><a href="Tenants-Section.html" class="nav-link"><span class="nav-icon">👥</span><span>Tenants Management</span></a></li>
+          <li><a href="CreateTenantAccount.html" class="nav-link"><span class="nav-icon">👤</span><span>Create Tenant Account</span></a></li>
+          <li><a href="Payments-Section.html" class="nav-link"><span class="nav-icon">💳</span><span>Payments</span></a></li>
+          <li><a href="Announcements-Section.html" class="nav-link"><span class="nav-icon">📢</span><span>Announcements</span></a></li>
+          <li><a href="../ADMIN/Rental-Contract-Admin.html" class="nav-link"><span class="nav-icon">📝</span><span>Rental Contract</span></a></li>
+          <li><a href="../Users/Login-Form.html" class="nav-link"><span class="nav-icon">➡️</span><span>Logout</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-top">
+          <div class="header-title">
+            <h1>Units Management</h1>
+            <p>Manage apartment units — add, edit, remove, and monitor.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="exportCsvBtn">📥 Export</button>
+            <button class="btn btn-secondary" id="exportXmlBtn">🗎 Export XML</button>
+            <label class="btn btn-secondary" style="display:inline-block;cursor:pointer;">
+              🔁 Import XML
+              <input type="file" id="xmlFileInput" accept=".xml" style="display:none">
+            </label>
+            <button class="btn btn-primary" id="addUnitBtn">+ Add New Unit</button>
+            <button class="btn" id="resetSampleBtn" title="Reset to sample data" style="background:#fff;border:1px solid #e5e7eb">Reset</button>
+          </div>
+        </div>
+
+        <div class="filters-section" style="margin-top:12px">
+          <div class="search-box">
+            <input id="searchInput" type="text" placeholder="🔍 Search by unit number, tenant name, or type...">
+          </div>
+          <div class="filter-group" style="display:flex;gap:8px">
+            <select id="statusFilter" class="filter-select">
+              <option value="all">All Status</option>
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="reserved">Reserved</option>
+            </select>
+            <select id="typeFilter" class="filter-select">
+              <option value="all">All Types</option>
+              <option value="studio">Studio</option>
+              <option value="1br">1 Bedroom</option>
+              <option value="2br">2 Bedroom</option>
+              <option value="3br">3 Bedroom</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <div class="stats-summary" id="statsSummary">
+        <!-- Stats inserted dynamically -->
+      </div>
+
+      <div class="content-card" style="margin-top:8px">
+        <div class="card-header">
+          <h3 class="card-title" id="listTitle">All Units</h3>
+          <div class="view-toggle">
+            <button class="view-btn active" id="tableViewBtn">Table View</button>
+            <button class="view-btn" id="gridViewBtn">Grid View</button>
+          </div>
+        </div>
+
+        <div id="tableContainer">
+          <table class="units-table">
+            <thead>
+              <tr>
+                <th>Unit</th>
+                <th>Type</th>
+                <th>Tenant</th>
+                <th>Rent (₱)</th>
+                <th>Status</th>
+                <th>Move-in Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="unitsTbody">
+              <!-- rows generated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="gridContainer" style="display:none;margin-top:12px">
+          <!-- optional grid view -->
+          <div id="gridItems" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="unitModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Unit</h3>
+        <button id="closeModalBtn" class="link">Close</button>
+      </div>
+
+      <form id="unitForm">
+        <input type="hidden" id="unitId" />
+        <div class="form-row">
+          <div class="col">
+            <label for="unitNumber">Unit Number</label>
+            <input id="unitNumber" type="text" required placeholder="A-101">
+          </div>
+          <div class="col">
+            <label for="unitType">Type</label>
+            <select id="unitType">
+              <option value="studio">Studio</option>
+              <option value="1br">1 Bedroom</option>
+              <option value="2br">2 Bedroom</option>
+              <option value="3br">3 Bedroom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col">
+            <label for="tenantName">Tenant Name (optional)</label>
+            <input id="tenantName" type="text" placeholder="John Smith">
+          </div>
+          <div class="col">
+            <label for="rentAmount">Rent (₱)</label>
+            <input id="rentAmount" type="number" min="0" placeholder="15000" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="available">Available</option>
+              <option value="occupied">Occupied</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="reserved">Reserved</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="moveInDate">Move-in Date (optional)</label>
+            <input id="moveInDate" type="date">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/unit-management-test.js">
+  </script>
+
+  <script>
+      (function() {
+    function checkAuthentication() {
+        const sessionData = localStorage.getItem('rentarium_session');
+        
+        if (!sessionData) {
+            alert('Please login to access this page');
+            window.location.href = '../Users/Login-Form.html';
+            return null;
+        }
+
+        const session = JSON.parse(sessionData);
+        
+        // Verify admin role
+        if (session.role !== 'admin') {
+            alert('Access denied. Admin privileges required.');
+            window.location.href = '../Users/Login-Form.html';
+            return null;
+        }
+
+        // Validate 1-hour timeout
+        const loginTime = new Date(session.loginTime).getTime();
+        const now = Date.now();
+        const oneHour = 60 * 60 * 1000;
+        
+        if ((now - loginTime) >= oneHour) {
+            alert('Your session has expired. Please login again.');
+            localStorage.removeItem('rentarium_session');
+            window.location.href = '../Users/Login-Form.html';
+            return null;
+        }
+
+        return session;
+    }
+
+    // Run on page load
+    const currentSession = checkAuthentication();
+    
+    if (currentSession) {
+        // Optional: Display user name if you have an element for it
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+            userNameElement.textContent = currentSession.fullName || currentSession.username;
+        }
+    }
+
+    // ============================================================================
+    // LOGOUT FUNCTIONALITY
+    // ============================================================================
+    
+    function handleLogout(e) {
+        e.preventDefault();
+        
+        if (confirm('Are you sure you want to logout?')) {
+            // Clear session
+            localStorage.removeItem('rentarium_session');
+            
+            // Optional: Log the logout event
+            const logs = JSON.parse(localStorage.getItem('security_logs') || '[]');
+            logs.push({
+                timestamp: new Date().toISOString(),
+                eventType: 'LOGOUT',
+                username: currentSession ? currentSession.username : 'unknown'
+            });
+            localStorage.setItem('security_logs', JSON.stringify(logs));
+            
+            // Redirect to login
+            window.location.href = '../Users/Login-Form.html';
+        }
+    }
+    
+    // Attach logout to all logout links/buttons
+    // This works for links in sidebar or anywhere on the page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Method 1: Find by ID
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+        
+        // Method 2: Find all logout links (in case you have multiple)
+        const logoutLinks = document.querySelectorAll('a[href*="Login-Form"], a[href="#logout"]');
+        logoutLinks.forEach(link => {
+            link.addEventListener('click', handleLogout);
+        });
+    });
+
+    // Check session on page visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            checkAuthentication();
+        }
+    });
+})();
+
+  // Attach logout handler
+    const logoutLinks = document.querySelectorAll('a[href*="Login-Form.html"]');
+    logoutLinks.forEach(link => {
+      const linkText = link.textContent.toLowerCase();
+      if (linkText.includes('logout') || linkText.includes('➡️')) {
+        link.addEventListener('click', handleLogout);
+      }
+    });
+
+  </script>
+  </body>
+</html>
